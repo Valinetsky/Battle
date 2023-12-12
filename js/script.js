@@ -4,18 +4,22 @@
 //   Array(8).fill(0).map((e,i)=>i+1)
 // );
 
-const probe_arr = [100, 200, 3, 4];
 
-for (let index = 0; index < 10; index++) {
-	console.log("probe_arr");
-    console.log(probe_arr);
-	arrayUniqFill(probe_arr);
-}
+// ********* REMOVE!!!!
+// const probe_arr = [100, 200, 3, 4];
 
-arrayUniqFill(probe_arr);
+// for (let index = 0; index < 10; index++) {
+// 	console.log("probe_arr");
+//     console.log(probe_arr);
+// 	arrayUniqFill(probe_arr);
+// }
 
-console.log("probe_arr");
-console.log(probe_arr);
+// arrayUniqFill(probe_arr);
+
+// console.log("probe_arr");
+// console.log(probe_arr);
+// ********* REMOVE!!!!
+
 
 // Количество направлений, по которым может располагаться корабль: 1 - от головы на север, далее - по часовой стрелке.
 const DIRECTIONS = 4;
@@ -80,29 +84,39 @@ array2dBorder(computerWorld, BORDER);
 array2dBorder(playerWorld, BORDER);
 
 // +++ Отладочная информация +++
+// console.log('Map with border. computerWorld');
+// console.table(computerWorld);
+
+// +++ Отладочная информация +++
+// console.log('Map with border. playerWorld');
+// console.table(playerWorld);
+
+const emptyCellsCoord = GetEmptyCellCoords(computerWorld);
+computerWorld[2][1] = 88;
+computerWorld[2][3] = 88;
+
+
+
+// CreateMap(computerWorld, squadronComputer);
+
+// +++ Отладочная информация +++
 console.log('Map with border. computerWorld');
 console.table(computerWorld);
 
-// +++ Отладочная информация +++
-console.log('Map with border. playerWorld');
-console.table(playerWorld);
+const simpleMap = Map_0_1_Copy(computerWorld);
+console.table("simpleMap");
+console.table(simpleMap);
+
+let logical = TryToPlaceShip(simpleMap, emptyCellsCoord, squadronComputer[0]);
+console.table("logical");
+console.table(logical);
 
 
-
-
-
-CreateMap(computerWorld, squadronComputer);
-
-// +++ Отладочная информация +++
-console.log('Map with border. computerWorld');
-console.table(computerWorld);
-
-
-CreateMap(playerWorld, squadronPlayer);
+// CreateMap(playerWorld, squadronPlayer);
 
 // +++ Отладочная информация +++
-console.log('Map with border. playerWorld');
-console.table(playerWorld);
+// console.log('Map with border. playerWorld');
+// console.table(playerWorld);
 
 
 // ================================================================
@@ -110,8 +124,8 @@ console.table(playerWorld);
 // -------------------- Создание игрового поля для игрока или компьютера
 function CreateMap(gamemap, squadron)
 {
-  array2dBorder(gamemap, BORDER);
-  console.table(gamemap);
+
+  // console.table(gamemap);
 
   // индекс корабля
   let shipIndex = 10;
@@ -155,19 +169,21 @@ function array2dBorder(arr2d, number)
 }
 
 // --------------------------- New Year 2023 - SHIP PLACE
-function ShipPlace(map, ship, shipIndex)
+function Old____ShipPlace(gamemap, ship, shipIndex)
 {
   let decks = ship[3];
 
-  let emptyCells = countCellsWithNumber(map, EMPTY);
+  let emptyCells = countCellsWithNumber(gamemap, EMPTY);
 
   while (emptyCells > 0)
   {
     let randomCell = GetRandomFrom(1, emptyCells);
 
     // +++ Отладочная информация +++
-    // System.Console.Write("randomCell ");
-    // System.Console.WriteLine(randomCell);
+    console.log("emptyCells ");
+    console.log(emptyCells);
+    console.log("randomCell ");
+    console.log(randomCell);
 
     let xAnDy = randomCellXY(randomCell, gamemap, EMPTY);
 
@@ -274,10 +290,10 @@ function GetRandomFrom(min, max)
 }
 
 // ------------ Get random cell X, Y ----
-function randomCellXY(number, arr, numberToFind)
+function randomCell_X_Y_Arr(number, arr, numberToFind)
 {
   let count = 0;
-  let localxAnDy = 0;
+  let localxAnDy = [-1, -1];
   for (let i = 1; i < arr.length - 1; i++)
   {
     for (let j = 1; j < arr[0].length - 1; j++)
@@ -287,7 +303,8 @@ function randomCellXY(number, arr, numberToFind)
         count++;
         if (count === number)
         {
-          localxAnDy = i * 100 + j;
+          localxAnDy[0] = j;
+          localxAnDy[1] = i;
           return localxAnDy;
         }
       }
@@ -390,4 +407,81 @@ function Create2dArray(rows, columns)
 {
   const arr = Array(rows).fill().map(() => Array(columns).fill(EMPTY));
   return arr;
+}
+
+
+// --------------------------- New Year 2023 - SHIP PLACE
+function GetEmptyCellCoords(gamemap)
+// Получаем карту
+// Считаем пустые клетки
+// Берем рэндом пустую клетку
+// Получаем координаты рэндом пустой
+{
+  let emptyCells = countCellsWithNumber(gamemap, EMPTY);
+  let randomCell = GetRandomFrom(1, emptyCells);
+
+
+
+
+    // +++ Отладочная информация +++
+    console.log("emptyCells ");
+    console.log(emptyCells);
+    console.log("randomCell ");
+    console.log(randomCell);
+
+    let xAnDy = randomCell_X_Y_Arr(randomCell, gamemap, EMPTY);
+    console.log("X ");
+    console.log(xAnDy[0]);
+    console.log("Y ");
+    console.log(xAnDy[1]);
+    return xAnDy;
+
+  }
+
+
+// --------------------------- Map_0_1_Copy - simple map from game map
+function Map_0_1_Copy(gamemap)
+{
+  const simpleMap = Create2dArray(WORLDSIZE, WORLDSIZE);
+  for (let i = 0; i < WORLDSIZE; i++) {
+    for (let j = 0; j < WORLDSIZE; j++) {
+      if (gamemap[i][j] != 0) {
+        simpleMap[i][j] = 1;
+      }
+    }
+  }
+  return simpleMap;
+}
+
+// ----- Try to place Ship
+function TryToPlaceShip(simpleMap, coords, ship) {
+  let decks = ship[3];
+  let flag = 0;
+  const directionArray = new Array(DIRECTIONS);
+  arrayUniqFill(directionArray);
+  console.log("directionArray");
+  console.log(directionArray);
+  for (let index = 0; index < directionArray.length; index++) {
+    let freeCellSum = 0;
+    let dXdY = GetDirection(directionArray[index]);
+
+    for (let deckIndex = 1; deckIndex < decks; deckIndex++) {
+      freeCellSum = freeCellSum + simpleMap[coords[0] + dXdY[1] * deckIndex][coords[1] + dXdY[0] * deckIndex];
+      // ---------- отладка
+      console.log("coords[0] + dXdY[1] * deckIndex");
+      console.log(coords[0] + dXdY[1] * deckIndex);
+      console.log("coords[1] + dXdY[0] * deckIndex");
+      console.log(coords[1] + dXdY[0] * deckIndex);
+      simpleMap[coords[0] + dXdY[1] * deckIndex][coords[1] + dXdY[0] * deckIndex] = 777;
+      simpleMap[coords[0]][coords[1]] = 8;
+      // ---------- отладка
+      if (freeCellSum > 0) {
+        console.log("EPIC FAIL!!!");
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! START HERE!!!
+        break;
+      }
+    }
+    console.table(simpleMap);
+    return flag;
+  }
 }
