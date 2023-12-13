@@ -456,16 +456,18 @@ function Map_0_1_Copy(gamemap)
 // ----- Try to place Ship
 function TryToPlaceShip(simpleMap, coords, ship) {
   let decks = ship[3];
-  let flag = 0;
+  
   const directionArray = new Array(DIRECTIONS);
   arrayUniqFill(directionArray);
   console.log("directionArray");
   console.log(directionArray);
   for (let index = 0; index < directionArray.length; index++) {
+    let flag = 1;
     let freeCellSum = 0;
     let dXdY = GetDirection(directionArray[index]);
 
     for (let deckIndex = 1; deckIndex < decks; deckIndex++) {
+      SetShipCoordDirection(ship, x, y, directionArray[index])
       freeCellSum = freeCellSum + simpleMap[coords[0] + dXdY[1] * deckIndex][coords[1] + dXdY[0] * deckIndex];
       // ---------- отладка
       console.log("coords[0] + dXdY[1] * deckIndex");
@@ -478,10 +480,23 @@ function TryToPlaceShip(simpleMap, coords, ship) {
       if (freeCellSum > 0) {
         console.log("EPIC FAIL!!!");
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! START HERE!!!
+        flag = 0;
         break;
       }
     }
-    console.table(simpleMap);
-    return flag;
   }
+  if (!flag) {
+    simpleMap[coords[0]][coords[1]] = 4;
+  }
+  if (flag) {
+    
+  }
+  return flag;
+}
+
+// ------ Set Ship coord and direction
+function SetShipCoordDirection(ship, x, y, direct) {
+  ship[0] = x;
+  ship[1] = y;
+  ship[2] = direct;
 }
