@@ -65,28 +65,28 @@ const squadronPlayer = [
 	[0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]
 ];
 
-// const squadronTest = [
-// 	[0, 0, 0, 4, 4],
-// 	[0, 0, 0, 3, 3], [0, 0, 0, 3, 3],
-// 	[0, 0, 0, 2, 2], [0, 0, 0, 2, 2], [0, 0, 0, 2, 2],
-// 	[0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]
-// ];
+const squadronTest = [
+	[0, 0, 0, 4, 4],
+	[0, 0, 0, 3, 3], [0, 0, 0, 3, 3],
+	[0, 0, 0, 2, 2], [0, 0, 0, 2, 2], [0, 0, 0, 2, 2],
+	[0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]
+];
 
-// // ---- TEST
-// const testWorld = [
-// 	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
-// 	[ 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1],
-// 	[ 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// 	[ 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-// 	[ 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-// 	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// ];
+// ---- TEST
+const testWorld = [
+	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+	[ 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+	[ 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+	[ 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+	[ 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+	[ 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+	[ 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+	[ 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+];
 
 
 // console.table(testWorld);
@@ -103,15 +103,13 @@ console.log("computerWorld");
 console.table(computerWorld);
 console.log("playerWorld");
 console.table(playerWorld);
-MapCleanUp(playerWorld, DIRECTIONS, EMPTY);
-console.log("playerWorld");
-console.table(playerWorld);
-
 
 
 // --------- square border in array fill with NUMBER -----
 function array2dBorder(arr2d, number)
 {
+	
+	
 	for (let i = 0; i < arr2d.length; i++)
 	{
 		arr2d[i][0] = number;
@@ -131,11 +129,17 @@ function array2dBorder(arr2d, number)
 	return arr2d;
 }
 
+
+
+
+
+
 // ------------ count of cells contain NUMBER ---
 function countCellsWithNumber(arr, numberToFind)
 {
 	return [].concat(...arr).filter(x => x === numberToFind).length;
 }
+
 
 // --------------------------- New Year 2023 - SHIP PLACE
 function GetEmptyCellCoords(gamemap)
@@ -166,46 +170,48 @@ function TryToPlaceShip(simpleMap, coords, ship) {
 	let decks = ship[DECKS];
 	if (decks == 1) {
 		SetShipCoordDirection(ship, coords[COORD_X], coords[COORD_Y], STATUS);
-		// console.log("ONEDECKER placed");
-		// console.log(ship);
+		console.log("ONEDECKER placed");
+		console.log(ship);
 		return flag;
 	}
 	const directionArray = new Array(DIRECTIONS);
 	arrayUniqFill(directionArray);
-	// console.log("directionArray");
-	// console.log(directionArray);
+	console.log("directionArray");
+	console.log(directionArray);
 	
 	for (let index = 0; index < directionArray.length; index++) {
 		flag = 1;
 		let freeCellSum = 0;
 		let dXdY = GetDirection(directionArray[index]);
-		// console.log("directionArray[index]");
-		// console.log(directionArray[index]);
+		console.log("directionArray[index]");
+		console.log(directionArray[index]);
 
 		for (let deckIndex = 1; deckIndex < decks; deckIndex++) {
 			SetShipCoordDirection(ship, coords[COORD_X], coords[COORD_Y], directionArray[index]);
 			freeCellSum = freeCellSum + simpleMap[coords[COORD_Y] + dXdY[COORD_Y] * deckIndex][coords[COORD_X] + dXdY[COORD_X] * deckIndex];
-			// console.log("CELL");
-			// console.log(simpleMap[coords[COORD_Y] + dXdY[COORD_Y] * deckIndex][coords[COORD_X] + dXdY[COORD_X] * deckIndex], coords[COORD_Y] + dXdY[COORD_Y] * deckIndex, coords[COORD_X] + dXdY[COORD_X] * deckIndex);
+			console.log("CELL");
+			console.log(simpleMap[coords[COORD_Y] + dXdY[COORD_Y] * deckIndex][coords[COORD_X] + dXdY[COORD_X] * deckIndex], coords[COORD_Y] + dXdY[COORD_Y] * deckIndex, coords[COORD_X] + dXdY[COORD_X] * deckIndex);
 			if (freeCellSum > 0) {
-				// console.log("EPIC FAIL!!! Ship not placed");
+				console.log("EPIC FAIL!!! Ship not placed");
 				flag = 0;
 				break;
 			}
+
 		}
 		if (freeCellSum == 0) {
-			// console.log("Ship placed");
-			// console.log(ship);
+			console.log("Ship placed");
+			console.log(ship);
 			return flag;
 		}
 	}
-	// ------------- ВОЗМОЖНО ЭТОТ БЛОК не НУЖЕН
 	if (!flag) {
 		simpleMap[coords[COORD_Y]][coords[COORD_X]] = 4;
 		SetShipCoordDirection(ship, 0, 0, 0);
 	}
 	return flag;
 }
+
+
 
 // ------------------------- Create 2d array
 function Create2dArray(rows, columns) 
@@ -234,8 +240,8 @@ function randomCell_X_Y_Arr(number, arr, numberToFind)
 				count++;
 				if (count === number)
 				{
-					localxAnDy[COORD_X] = j;
-					localxAnDy[COORD_Y] = i;
+					localxAnDy[0] = j;
+					localxAnDy[1] = i;
 					return localxAnDy;
 				}
 			}
@@ -309,27 +315,27 @@ function ShipPlacing(gamemap, squadron) {
 	let shipCounter = 10
 	squadron.forEach(ship => {
 		let emptyCells = countCellsWithNumber(gamemap, EMPTY);
-		// console.log("emptyCells");
-		// console.log(emptyCells);
-		// console.log("ship[DECKS]");
-		// console.log(ship[DECKS]);
+		console.log("emptyCells");
+		console.log(emptyCells);
+		console.log("ship[DECKS]");
+		console.log(ship[DECKS]);
 		while (emptyCells) {
 			if (emptyCells < ship[DECKS]) {
 				console.log("No more space for Ship");
 				return 0;
 			}
 			const emptyCellsCoord = GetEmptyCellCoords(gamemap);
-			// console.log(emptyCellsCoord);
+			console.log(emptyCellsCoord);
 			const simpleMap = Map_0_1_Copy(gamemap);
 			let logicalShipPlaced = TryToPlaceShip(simpleMap, emptyCellsCoord, ship);
 			// console.table("logical");
 			// console.table(logical);
 			if (logicalShipPlaced) {
-				// console.log("Ship ### placed");
-				// console.log(shipCounter);
+				console.log("Ship ### placed");
+				console.log(shipCounter);
 				MapFill(gamemap, ship, shipCounter);
-				// console.log("GAMEMAP");
-				// console.table(gamemap);
+				console.log("GAMEMAP");
+				console.table(gamemap);
 				shipCounter++;
 				break;
 			}
@@ -351,23 +357,11 @@ function MapFill(gamemap, ship, shipCounter) {
 				let insideX = localX + z + dXdY[COORD_X] * deckIndex;
 				let insideY = localY + j + dXdY[COORD_Y] * deckIndex;
 				if (gamemap[insideY][insideX] == 0) {
-					gamemap[insideY][insideX] = DIRECTIONS;
+					gamemap[insideY][insideX] = 7;
 				};
 				gamemap[localY + dXdY[COORD_Y] * deckIndex][localX + dXdY[COORD_X] * deckIndex] = shipCounter;
-			}
-		}
-	}
-	// MapCleanUp(gamemap, DIRECTIONS, EMPTY);
-}
 
-// ---------- MapCleanUp(gamemap);
-function MapCleanUp(gamemap, numberToFind, numberToChange) {
-	for(let i = 0; i < gamemap.length; i++){
-		let innerArrayLength = gamemap[i].length;
-		for(let j = 0; j < innerArrayLength; j++) {
-			if (gamemap[j][i] == numberToFind) {
-				gamemap[j][i] = numberToChange;
-			};
+			}
 		}
 	}
 }
