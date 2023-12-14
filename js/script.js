@@ -23,7 +23,7 @@ const HIDESHIP = false;
 // чем возможно по правилам игры, равна 3 х (decks + 2). Она не даст хвосту следующего по списку корабля встать на невозможное место. 
 const WORLDSIZE = 10 + 1 + 1;
 
-const computerWorld = Create2dArray(WORLDSIZE, WORLDSIZE)
+const computerWorld = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY)
 // // Массив для тестового прогона
 				// const testWorld = [
 				// 	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -41,7 +41,7 @@ const computerWorld = Create2dArray(WORLDSIZE, WORLDSIZE)
 				// ];
 										;
 
-const playerWorld = Create2dArray(WORLDSIZE, WORLDSIZE);
+const playerWorld = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
 
 // Массив кораблей. [0] - x, [1] - y; [2] - direction; [3] - decks; [4] - status: n = 0 - destroyed, n = [3] — new ship, other n — wounded 
 const COORD_X = 0;
@@ -65,12 +65,12 @@ const squadronPlayer = [
 	[0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]
 ];
 
-// const squadronTest = [
-// 	[0, 0, 0, 4, 4],
-// 	[0, 0, 0, 3, 3], [0, 0, 0, 3, 3],
-// 	[0, 0, 0, 2, 2], [0, 0, 0, 2, 2], [0, 0, 0, 2, 2],
-// 	[0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]
-// ];
+const squadronTest = [
+	[0, 0, 0, 4, 4],
+	[0, 0, 0, 3, 3], [0, 0, 0, 3, 3],
+	[0, 0, 0, 2, 2], [0, 0, 0, 2, 2], [0, 0, 0, 2, 2],
+	[0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]
+];
 
 // // ---- TEST
 // const testWorld = [
@@ -99,14 +99,44 @@ array2dBorder(playerWorld, BORDER);
 
 ShipPlacing(computerWorld, squadronComputer);
 ShipPlacing(playerWorld, squadronPlayer);
+
 console.log("computerWorld");
 console.table(computerWorld);
+MapCleanUp(computerWorld, DIRECTIONS, EMPTY);
+
 console.log("playerWorld");
 console.table(playerWorld);
 MapCleanUp(playerWorld, DIRECTIONS, EMPTY);
 console.log("playerWorld");
 console.table(playerWorld);
 
+let s = shipRemainMax(squadronTest);
+console.log("shipRemainMax");
+console.log(s);
+
+
+// ****************************
+// From C#
+// карта клеток, по которым имеет смысл делать выстрел (для игрока)
+const playerBitShotMap = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+array2dBorder(playerBitShotMap, BORDER);
+
+
+
+// карта-решето (для игрока) - В основном цикле просто random
+const playerSieve = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+array2dBorder(playerSieve, BORDER);
+
+
+// // карта клеток, по которым имеет смысл делать выстрел (для компьютера)
+// const computerBitShotMap = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+// array2dBorder(computerBitShotMap, BORDER);
+
+
+// // карта-решето для поиска текущего корабля
+// const computerSieve = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+// array2dBorder(computerSieve, BORDER);
+// NewSieve(computerSieve, computerBitShotMap, squadronPlayer);
 
 
 // --------- square border in array fill with NUMBER -----
@@ -149,7 +179,7 @@ function GetEmptyCellCoords(gamemap)
 // --------------------------- Map_0_1_Copy - simple map from game map
 function Map_0_1_Copy(gamemap)
 {
-	const simpleMap = Create2dArray(WORLDSIZE, WORLDSIZE);
+	const simpleMap = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
 	for (let i = 0; i < WORLDSIZE; i++) {
 		for (let j = 0; j < WORLDSIZE; j++) {
 			if (gamemap[i][j] != 0) {
@@ -208,9 +238,9 @@ function TryToPlaceShip(simpleMap, coords, ship) {
 }
 
 // ------------------------- Create 2d array
-function Create2dArray(rows, columns) 
+function Create2dArray(rows, columns, symbol) 
 {
-	const arr = Array(rows).fill().map(() => Array(columns).fill(EMPTY));
+	const arr = Array(rows).fill().map(() => Array(columns).fill(symbol));
 	return arr;
 }
 
@@ -370,4 +400,237 @@ function MapCleanUp(gamemap, numberToFind, numberToChange) {
 			};
 		}
 	}
+}
+
+// NEW BLOCK ----- additional gamemaps generation
+const computerBitShotMap = Create2dArray(WORLDSIZE, WORLDSIZE, SIEVENUMBER);
+array2dBorder(computerBitShotMap, EMPTY);
+console.log("computerShotMap");
+console.table(computerBitShotMap);
+
+let shipToFind = 4;
+const computerSieve = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+array2dBorder(computerSieve, EMPTY);
+NewSieve(computerSieve, computerBitShotMap, squadronTest);
+console.log("computerSieveMap");
+console.table(computerSieve);
+
+
+// -------------------- Функция генерации нового сита
+function NewSieve(sieve, bitmap, squadron)
+{
+	// поиск и выбор числа палуб самого большого живого корабля в моменте
+	let decksForRandomChoice = shipRemainMax(squadron);
+
+	// случайный сдвиг для текущего сита. (Сито — это сито. Для просеивания. Никаких Dart-вёдер.)
+	let shiftRandom = GetRandomFrom(0, decksForRandomChoice - 1);
+
+	sieveGenerate(sieve, bitmap, shiftRandom, SIEVENUMBER, decksForRandomChoice);
+}
+
+// --------------- shipRemainMax
+function shipRemainMax(squadron)
+{
+	let ship;
+	for (ship of squadron) {
+		if (ship[STATUS] != 0)
+			{
+				// console.log("ship[STATUS]");
+				// console.log(ship[STATUS], ship[DECKS]);
+				return ship[DECKS];
+			}
+		}
+		return -1;
+}
+
+// -------------------- Сито для поиска текущего корабля
+function sieveGenerate(sieve, shotThroughMap, shiftRandom, fillNumber, decks)
+{
+	shiftRandom = shiftRandom % decks;
+
+	let localX = 1 + shiftRandom;
+	let localY = 1;
+
+	// Края карты: 1 - слева, 1 - справа. Всего: 2.
+	let boardBorder = 2;
+
+	let boardWidth = sieve.length - boardBorder;
+
+	let boardHight = sieve[0].length - boardBorder;
+
+	while (true)
+	{
+		sieve[localY][localX] = fillNumber * shotThroughMap[localY][localX];
+
+		localX = localX + decks;
+
+		if (localX > boardWidth)
+		{
+			localX = (localY + shiftRandom) % decks + 1;
+			localY++;
+
+			if (localY > boardHight)
+			{
+				break;
+			}
+		}
+	}
+}
+
+
+
+// Вывод поля игрока и запрос, в бесконечном цикле, на генерацию новой 
+// расстановки кораблей для игрока (человека)
+while (true)
+{
+	PrintSymbolMap(computerWorld, playerWorld, HIDESHIP);
+
+	// let stopGame = prompt("Generate new PLAYER map? (1 - yes, 0 - no)\n-----------------------------------------------------------");
+
+	// if (stopGame == 0)
+	// {
+	// 	break;
+	// }
+
+	playerWorld = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+	// array2dFillWithNumber(playerWorld, EMPTY);
+
+	CreateMap(playerWorld, squadronPlayer);
+}
+// ===============================================================================
+// =================================== Конец раздела генерации игровых полей =====
+// ===============================================================================
+
+
+// ===============================================================================
+// =================================== Подготовка и сам основной цикл  ===========
+// ===============================================================================
+
+let playerTurn = true;
+
+let gameOver = false;
+
+// Параметр для начальной генерации сита
+let MAXDECKS = 4;
+
+// Количество сделанных выстрелов
+let playerShotsCount = 0;
+let computerShotsCount = 0;
+let overalTurnCount = 0;
+
+// Бросаем монетку на очередность хода
+let coinToss = GetRandomFrom(0, 1);
+if (coinToss == 0)
+{
+	playerTurn = !playerTurn;
+}
+
+console.log((playerTurn) ? "First shot — PLAYER" : "First shot — COMPUTER");
+
+// --------------------- Вывод символьных полей игрока и компьютера
+function PrintSymbolMap(computerMap, playerMap, hideShip)
+{
+	console.log("double map");
+	console.table(computerMap);
+	console.table(playerMap);
+
+	console.log();
+	console.log("         computer Map \t\t\t player Map");
+	console.log();
+	console.log("     1 2 3 4 5 6 7 8 9 10 \t     1 2 3 4 5 6 7 8 9 10");
+	let mapString;
+
+
+
+
+	for (let i = 0; i < computerMap.length; i++)
+	{
+		mapString = symbolY(i);
+
+		for (let j = 0; j < computerMap[0].length; j++)
+		{
+			mapString = mapString + GetSymbol(computerMap[i][j], playerBitShotMap[i][j]) + " ";
+
+		}
+
+		mapString = mapString + "\t" + symbolY(i);
+
+		for (let k = 0; k < playerMap[0].length; k++)
+		{
+			mapString = mapString + GetSymbol(playerMap[i][k], computerBitShotMap[i][k]) + " ";
+		}
+		console.log(mapString);
+		
+	}
+	console.log();
+}
+
+// --------------- Вывод координаты Y в символьное поле
+function symbolY(i)
+{
+	let symbol;
+	if (i == 0 || i == 11)
+	{
+		symbol = "   ";
+	}
+
+	if (i > 0 && i < 11 && i != 10)
+	{
+		symbol = i + "  ";
+	}
+
+	if (i == 10)
+	{
+		symbol = i + " ";
+	}
+	return symbol;
+}
+
+
+
+// --------------- Получение символа карты
+function GetSymbol(number, shot)
+
+{
+	// console.log("number, shot");
+	// console.log(number, shot);
+	
+	if (shot == 1)
+	{
+		if (number == 0 || number == 1)
+		{
+			return " ";
+		}
+
+		if (number == 8)
+		{
+			return "M";
+		}
+
+		if (number > 8)
+		{
+			return "@";
+		}
+	}
+
+	if (shot == 0)
+	{
+		if (number == 0 || number == 1)
+		{
+			return ".";
+		}
+
+		if (number == 8)
+		{
+			return "M";
+		}
+
+		if (number > 8)
+		{
+			return "X";
+		}
+	}
+	// Здесь ЧТО-ТО случается!!!! Надо когда-нибудь разобраться!!! (02.02.2023)
+	// console.log("Epic fail!!!");
+	return "F";
 }
