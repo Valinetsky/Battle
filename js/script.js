@@ -402,6 +402,18 @@ function MapCleanUp(gamemap, numberToFind, numberToChange) {
 	}
 }
 
+// ---------- MapOneNumber(gamemap);
+function MapOneNumber(gamemap, numberToKeep, numberToChange) {
+	for(let i = 0; i < gamemap.length; i++){
+		let innerArrayLength = gamemap[i].length;
+		for(let j = 0; j < innerArrayLength; j++) {
+			if (gamemap[j][i] != numberToKeep) {
+				gamemap[j][i] = numberToChange;
+			};
+		}
+	}
+}
+
 // NEW BLOCK ----- additional gamemaps generation
 const computerBitShotMap = Create2dArray(WORLDSIZE, WORLDSIZE, SIEVENUMBER);
 array2dBorder(computerBitShotMap, EMPTY);
@@ -485,17 +497,22 @@ while (true)
 {
 	PrintSymbolMap(computerWorld, playerWorld, HIDESHIP);
 
-	// let stopGame = prompt("Generate new PLAYER map? (1 - yes, 0 - no)\n-----------------------------------------------------------");
+	let stopGame = prompt("Generate new PLAYER map? (1 - yes, 0 - no)\n-----------------------------------------------------------");
 
-	// if (stopGame == 0)
-	// {
-	// 	break;
-	// }
+	if (stopGame == 0)
+	{
+		break;
+	}
 
-	playerWorld = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
+	// playerWorld = Create2dArray(WORLDSIZE, WORLDSIZE, EMPTY);
 	// array2dFillWithNumber(playerWorld, EMPTY);
+	MapOneNumber(playerWorld, BORDER, EMPTY);
 
-	CreateMap(playerWorld, squadronPlayer);
+	ShipPlacing(playerWorld, squadronPlayer);
+
+	console.log("playerWorld");
+	console.table(playerWorld);
+	MapCleanUp(playerWorld, DIRECTIONS, EMPTY);
 }
 // ===============================================================================
 // =================================== Конец раздела генерации игровых полей =====
@@ -526,6 +543,217 @@ if (coinToss == 0)
 }
 
 console.log((playerTurn) ? "First shot — PLAYER" : "First shot — COMPUTER");
+
+
+// =====================================================================
+// ====================  MAIN LOOP  ====================================
+// =====================================================================
+while (true)
+{
+	overalTurnCount++;
+
+	console.log();
+	console.log("======================================================");
+	console.log();
+	console.log("TURN ", overalTurnCount);
+
+	if (playerTurn)
+	{
+		MainPlay(computerWorld, playerSieve, playerBitShotMap, squadronComputer, playerShotsCount);
+	}
+
+	if (!playerTurn)
+	{
+		MainPlay(playerWorld, computerSieve, computerBitShotMap, squadronPlayer, computerShotsCount);
+	}
+
+	if (gameOver)
+	{
+		break;
+	}
+}
+
+// Финальные титры
+console.log();
+console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+console.log("&&&&&&&                                            &&&&&&&");
+console.log((playerTurn) ?
+						 "                        PLAYER WIN" : "                       COMPUTER WIN");
+console.log();
+console.log("&&&&&&&&&&&&&&           on  turn           &&&&&&&&&&&&&&");
+console.log();
+console.log("                            ");
+console.log(overalTurnCount);
+console.log("&&&&&&&                                            &&&&&&&");
+console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+
+PrintSymbolMap(computerWorld, playerWorld, HIDESHIP);
+// =====================================================================
+// ====================  END of MAIN LOOP  =============================
+// =====================================================================
+
+
+// ----------------------- NEW UNIVERSAL MAIN PLAY FUNCTION
+function MainPlay(map, sieve, bitmap, squadron, turn)
+{
+	while (true)
+	{
+		turn++;
+
+		// Вывод игрового поля !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		console.log();
+		console.log("------------------------------------------------------");
+
+		PrintSymbolMap(computerWorld, playerWorld, HIDESHIP);
+
+		console.log("sieve");
+		console.table(sieve);
+
+		const arrayFindAndCount = GetAndCountMaxIn2dArray(sieve);
+		console.log("arrayFindAndCount");
+		console.table(arrayFindAndCount);
+		let numberToFind = arrayFindAndCount[COORD_X];
+		let CountNumberToFind = arrayFindAndCount[COORD_Y];
+
+		let localCoordinates = GetCellToFire(sieve, numberToFind, CountNumberToFind);
+
+		let localY = localCoordinates / 100;
+		let localX = localCoordinates % 100;
+
+		sieve[localY][localX] = 0;
+		bitmap[localY][localX] = 0;
+
+		console.log(playerTurn ? "Player Shot " : "COMPUTER Shot ");
+		console.log(turn);
+
+		console.log("X ");
+		console.log(localX);
+		console.log(" Y ");
+		console.log(localY);
+		console.log(" ");
+
+		let shootResult = map[localY][localX];
+
+
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Останов между выстрелами !!!!!!!!!!!!!!!!!!!!!
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// Console.ReadLine();
+
+
+		// Число для сдвига корабля. Четырехпалубник на карте имеет номер 10, последний однопалубник 19
+		shipShift = 10;
+
+		// Выстрел в молоко
+		if (shootResult < shipShift)
+		{
+			console.log();
+			console.log("MISS");
+			playerTurn = !playerTurn;
+			break;
+		}
+		// Есть ПРОБИТИЕ!!!
+		console.log("    Есть ПРОБИТИЕ!!! * HIT!!!");
+
+		// узнаем статус корабля, в который попали
+		shipUnderFire = shootResult - shipShift;
+
+		shipStatus = squadron[shipUnderFire][DIRECTIONS];
+
+
+		// Если корабль потоплен
+		if (shipStatus <= 1)
+		{
+			System.Console.WriteLine();
+			System.Console.WriteLine("SHIP DESTROYED!!!");
+
+			squadron[shipUnderFire][DIRECTIONS] = EMPTY;
+
+			newShipToFind = shipRemainMax(squadron);
+
+			if (newShipToFind == -1)
+			{
+				gameOver = true;
+				break;
+			}
+
+			console.log();
+
+			currentShip = GetCurrentShip(squadron, shipUnderFire);
+
+			// Зачистка решета от символов добивания корабля
+			ChangeNumberIn2dArray(sieve, 2, EMPTY);
+
+			FillCellsAroundShip(bitmap, currentShip, EMPTY, SIEVENUMBER);
+			FillCellsAroundShip(sieve, currentShip, EMPTY, SIEVENUMBER);
+
+
+			if (!playerTurn)
+			{
+				if (newShipToFind < MAXDECKS)
+				{
+					MAXDECKS = newShipToFind;
+
+					NewSieve(computerSieve, computerBitShotMap, squadronPlayer);
+				}
+			}
+			continue;
+		}
+
+		// Если корабль ранен - уменьшаем счетчик действующих палуб. 
+		// DIRECTION - константа = 4, и в то же время номер живых палуб в массиве корабля. 
+		// Зря так сделано, но работает.
+		squadron[shipUnderFire][DIRECTIONS]--;
+
+		FillCellsAroundWoundedDeckDiagonal(localX, localY, bitmap);
+		FillCellsAroundWoundedDeckDiagonal(localX, localY, sieve);
+
+		numberToFire = 2; // Магическое число для последующего добивания корабля
+		FillCellsAroundWoundedDeckCross(localX, localY, sieve, bitmap, numberToFire);
+
+		continue;
+	}
+}
+
+// --------------- GetAndCountMaxIn2dArray
+// ---------- MapOneNumber(gamemap);
+function MapOneNumber(gamemap, numberToKeep, numberToChange) {
+	for(let i = 0; i < gamemap.length; i++){
+		let innerArrayLength = gamemap[i].length;
+		for(let j = 0; j < innerArrayLength; j++) {
+			if (gamemap[j][i] != numberToKeep) {
+				gamemap[j][i] = numberToChange;
+			};
+		}
+	}
+}
+
+
+function GetAndCountMaxIn2dArray(gamemap)
+{
+	let maxValue = 0;
+	let count = 0;
+	for(let i = 0; i < gamemap.length; i++){
+		let innerArrayLength = gamemap[i].length;
+		for(let j = 0; j < innerArrayLength; j++) {
+			if (maxValue == gamemap[j][i])
+			{
+				count++;
+			}
+			if (maxValue < gamemap[j][i])
+			{
+				maxValue = gamemap[j][i];
+				count = 1;
+			}
+		}
+	}
+
+	const arr = [2];
+	arr[0] = maxValue;
+	arr[1] = count;
+
+	return arr;
+}
 
 // --------------------- Вывод символьных полей игрока и компьютера
 function PrintSymbolMap(computerMap, playerMap, hideShip)
@@ -633,4 +861,39 @@ function GetSymbol(number, shot)
 	// Здесь ЧТО-ТО случается!!!! Надо когда-нибудь разобраться!!! (02.02.2023)
 	// console.log("Epic fail!!!");
 	return "F";
+}
+
+// ------------------------- GetCellToFire
+function GetCellToFire(sieve, numberToFind, count)
+{
+	let randomCellToFire = GetRandomFrom(1, count);
+
+	let xAnDyToFire = randomCellXY(randomCellToFire, sieve, numberToFind);
+
+	return xAnDyToFire;
+}
+
+
+// ------------ Get random cell X, Y ----
+function randomCellXY(number, arr, numberToFind)
+{
+	let count = 0;
+	let localxAnDy = 0;
+	for (let i = 1; i < arr.length - 1; i++)
+	{
+		for (let j = 1; j < arr[0].length - 1; j++)
+		{
+			if (arr[j][i] == numberToFind)
+			{
+				count++;
+				if (count == number)
+				{
+					localxAnDy = i * 100 + j;
+					return localxAnDy;
+				}
+			}
+		}
+	}
+	// Интересно, что будет делать вызывавшая функция с этим результатом?
+	return localxAnDy;
 }
