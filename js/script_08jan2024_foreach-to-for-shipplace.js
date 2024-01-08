@@ -95,7 +95,6 @@ const squadronPlayer = [
 
 // console.table(testWorld);
 // ShipPlacing(testWorld, squadronTest);
-// MapPrint(testWorld);
 
 
 // %%%%%%%%%%%%%  START
@@ -118,33 +117,6 @@ console.log("FIRST PART DONE");
 
 MapPrint(computerWorld);
 MapPrint(playerWorld);
-
-// console.log(squadronPlayer);
-// console.log(squadronComputer);
-
-let gen = 0;
-while (true) {
-	gen++;
-	
-	let regenerate = confirm("Введите число:  ");
-	if (!regenerate) {
-		console.log("NEXT PART");
-		break;
-	}
-	for (let index = 1; index <= 19; index++) {
-		MapCleanUp(playerWorld, index, 0);
-	}
-	array2dBorder(playerWorld, BORDER);
-	RestartShipPlacing(playerWorld, squadronPlayer);
-	MapCleanUp(playerWorld, DIRECTIONS, EMPTY);
-	console.log("playerWorld");
-	console.log("Generation", gen);
-	MapPrint(playerWorld);
-}
-
-
-
-
 
 
 
@@ -191,10 +163,10 @@ function ShipPlacing(gamemap, squadron) {
 	
 	let shipCounter = 10;
 	
-	for (let index = 0; index < squadron.length; index++) {
-		let ship = squadron[index];
-		console.log('SHIP');
-		console.log(ship);
+	let flag = 1;
+	
+	
+	squadron.forEach(ship => {
 		let emptyCells = countCellsWithNumber(localGamemap, EMPTY);
 		console.log("emptyCells");
 		console.log(emptyCells);
@@ -202,8 +174,7 @@ function ShipPlacing(gamemap, squadron) {
 		console.log(ship[DECKS]);
 		if (emptyCells < ship[DECKS]) {
 			console.log("No more space for Ship");
-			console.table(localGamemap);
-			return 0;
+			flag = 0;
 		}
 		while (emptyCells) {
 			const emptyCellsCoord = GetEmptyCellCoords(localGamemap);
@@ -230,10 +201,18 @@ function ShipPlacing(gamemap, squadron) {
 				break;
 			}
 		}
+	});
+	
+	if (flag === 0) {
+		console.log("Go to RESTART ships placing")
+		return flag;
 	}
+	
 	console.log("All ships placed");
 	
 	NewArr2dCopy(localGamemap, gamemap, MODECOPY);
+	
+	// console.table(gamemap);
 	
 	return 1;
 }
@@ -292,7 +271,7 @@ function randomCell_X_Y_Arr(number, arr, numberToFind)
 function TryToPlaceShip(simpleMap, coords, ship) {
 	let flag = 1;
 	let decks = ship[DECKS];
-	if (decks === 1) {
+	if (decks == 1) {
 		SetShipCoordDirection(ship, coords[COORD_X], coords[COORD_Y], STATUS);
 		// console.log("ONEDECKER placed");
 		// console.log(ship);
@@ -302,8 +281,8 @@ function TryToPlaceShip(simpleMap, coords, ship) {
 	ArrayUniqFill(directionArray);
 	
 	// Отладочная инфа
-	// console.log("directionArray");
-	// console.log(directionArray);
+	console.log("directionArray");
+	console.log(directionArray);
 	
 	for (let index = 0; index < directionArray.length; index++) {
 		flag = 1;
@@ -502,4 +481,5 @@ function MapCleanUp(gamemap, numberToFind, numberToChange) {
 			};
 		}
 	}
+	console.log("Map clean up");
 }
