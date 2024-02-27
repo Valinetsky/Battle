@@ -3,8 +3,6 @@
 let playerTest = 0;
 let computerTest = 0;
 
-// const timeStart = performance.now();
-console.time("test");
 for (let index = 0; index < 100; index++) {
     // Количество направлений, по которым может располагаться корабль: 1 - от головы на север, далее - по часовой стрелке.
     const DIRECTIONS = 4;
@@ -1049,7 +1047,3 @@ for (let index = 0; index < 100; index++) {
     playerTurn ? playerTest++ : computerTest++;
 }
 console.log(`Player wins: ${playerTest} ### Computer wins: ${computerTest}`);
-
-// const timeFinish = performance.now();
-// console.log((timeFinish - timeStart) / 1000, "seconds");
-console.timeEnd("test");
