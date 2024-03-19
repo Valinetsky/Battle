@@ -1,0 +1,26 @@
+.board {
+    display: grid;
+    grid-template-columns: repeat(12, 4vw);
+
+    grid-template-rows: repeat(12, 4vw);
+    gap: 2px;
+    border: 1px solid #d1e231;
+}
+
+.board div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: greenyellow;
+    /* width: 10vh;
+    height: 10vh; */
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.game__container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}

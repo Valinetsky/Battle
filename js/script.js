@@ -306,8 +306,8 @@ for (let index = 0; index < 100; index++) {
                 countNumberToFind
             );
             // Отладочная инфа
-            console.log("localCoordinates");
-            console.log(localCoordinates);
+            // console.log("localCoordinates");
+            // console.log(localCoordinates);
 
             let localY = Math.floor(localCoordinates / 100);
             let localX = localCoordinates % 100;
@@ -878,6 +878,7 @@ for (let index = 0; index < 100; index++) {
 
             console.log(symbol);
         }
+        render();
     }
 
     // --------------- Вывод координаты Y в символьное поле
@@ -1047,6 +1048,15 @@ for (let index = 0; index < 100; index++) {
     // const DECKS = 3;
     // const STATUS = 4;
     playerTurn ? playerTest++ : computerTest++;
+
+    function render() {
+        const boardPlayer = document.getElementByID("board0").childNodes;
+        for (let i = 0; i < computerMap.length; i++) {
+            for (let j = 0; j < computerMap.length; j++) {
+                boardPlayer[i * 12 + j];
+            }
+        }
+    }
 }
 console.log(`Player wins: ${playerTest} ### Computer wins: ${computerTest}`);
 
