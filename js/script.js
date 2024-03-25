@@ -5,7 +5,7 @@ let computerTest = 0;
 
 // const timeStart = performance.now();
 console.time("test");
-for (let index = 0; index < 100; index++) {
+for (let index = 0; index < 10000; index++) {
     // Количество направлений, по которым может располагаться корабль: 1 - от головы на север, далее - по часовой стрелке.
     const DIRECTIONS = 4;
 
@@ -1050,12 +1050,12 @@ for (let index = 0; index < 100; index++) {
     playerTurn ? playerTest++ : computerTest++;
 
     function render() {
-        const boardPlayer = document.getElementByID("board0").childNodes;
-        for (let i = 0; i < computerMap.length; i++) {
-            for (let j = 0; j < computerMap.length; j++) {
-                boardPlayer[i * 12 + j];
-            }
-        }
+        // const boardPlayer = document.getElementByID("board0").childNodes;
+        // for (let i = 0; i < computerMap.length; i++) {
+        //     for (let j = 0; j < computerMap.length; j++) {
+        //         boardPlayer[i * 12 + j];
+        //     }
+        // }
     }
 }
 console.log(`Player wins: ${playerTest} ### Computer wins: ${computerTest}`);
